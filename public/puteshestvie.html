@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Путешествие Деда Мороза</title>
+<link href="https://fonts.googleapis.com/css2?family=Ruslan+Display&family=Neucha&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Neucha', cursive;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #0a1e3f 0%, #1a3a6e 40%, #2d5aa8 100%);
+    color: #fff;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Падающий снег */
+  .snow {
+    position: fixed;
+    top: -10px;
+    color: #fff;
+    font-size: 1em;
+    animation: fall linear infinite;
+    pointer-events: none;
+    z-index: 1;
+    text-shadow: 0 0 5px rgba(255,255,255,0.8);
+  }
+  @keyframes fall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0.3; }
+  }
+
+  /* Орнамент сверху и снизу */
+  .ornament {
+    position: fixed;
+    left: 0; right: 0;
+    height: 30px;
+    background: repeating-linear-gradient(90deg,
+      #c9a84c 0px, #c9a84c 20px,
+      transparent 20px, transparent 30px,
+      #c0c0c0 30px, #c0c0c0 50px,
+      transparent 50px, transparent 60px);
+    opacity: 0.4;
+    z-index: 2;
+  }
+  .ornament.top { top: 0; }
+  .ornament.bottom { bottom: 0; }
+
+  .game-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .scene {
+    display: none;
+    animation: fadeIn 0.8s ease;
+  }
+  .scene.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h1 {
+    font-family: 'Ruslan Display', cursive;
+    font-size: 2.8em;
+    text-align: center;
+    color: #ffd700;
+    text-shadow: 0 0 20px rgba(255,215,0,0.6), 2px 2px 4px rgba(0,0,0,0.8);
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+
+  h2 {
+    font-family: 'Ruslan Display', cursive;
+    font-size: 2em;
+    color: #c0c0c0;
+    text-align: center;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+  }
+
+  .dialogue-box {
+    background: linear-gradient(135deg, rgba(10,30,63,0.95), rgba(26,58,110,0.95));
+    border: 3px solid #c9a84c;
+    border-radius: 20px;
+    padding: 25px 30px;
+    margin: 20px 0;
+    box-shadow: 0 0 30px rgba(201,168,76,0.3), inset 0 0 20px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  .dialogue-box::before {
+    content: '❄';
+    position: absolute;
+    top: -15px; left: 30px;
+    font-size: 2em;
+    color: #c9a84c;
+    text-shadow: 0 0 10px rgba(255,215,0,0.8);
+  }
+
+  .speaker {
+    font-family: 'Ruslan Display', cursive;
+    color: #ffd700;
+    font-size: 1.3em;
+    margin-bottom: 10px;
+  }
+
+  .dialogue-text {
+    font-size: 1.25em;
+    line-height: 1.6;
+    color: #e8e8e8;
+  }
+
+  .btn {
+    font-family: 'Ruslan Display', cursive;
+    background: linear-gradient(135deg, #1e5aa8, #2d7dd2);
+    color: #fff;
+    border: 2px solid #c9a84c;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    border-radius: 30px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    letter-spacing: 1px;
+  }
+  .btn:hover {
+    background: linear-gradient(135deg, #c9a84c, #ffd700);
+    color: #0a1e3f;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(255,215,0,0.5);
+  }
+  .btn:active { transform: translateY(0); }
+
+  .btn-center { text-align: center; margin-top: 25px; }
+
+  /* HUD - мешок подарков */
+  .hud {
+    position: fixed;
+    top: 40px; right: 20px;
+    background: rgba(10,30,63,0.9);
+    border: 2px solid #c9a84c;
+    border-radius: 15px;
+    padding: 12px 20px;
+    font-family: 'Ruslan Display', cursive;
+    font-size: 1.1em;
+    color: #ffd700;
+    z-index: 100;
+    box-shadow: 0 0 20px rgba(201,168,76,0.4);
+  }
+
+  /* Сцена леса */
+  .forest-scene {
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.1) 100%);
+    min-height: 400px;
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(192,192,192,0.3);
+  }
+
+  .tree {
+    position: absolute;
+    bottom: 0;
+    font-size: 5em;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+  }
+
+  .gift {
+    position: absolute;
+    font-size: 2.5em;
+    cursor: pointer;
+    animation: float 3s ease-in-out infinite, glow 2s ease-in-out infinite;
+    transition: transform 0.2s;
+    user-select: none;
+  }
+  .gift:hover { transform: scale(1.3); }
+  .gift.collected {
+    animation: collect 0.6s forwards;
+    pointer-events: none;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(255,215,0,0.6)); }
+    50% { filter: drop-shadow(0 0 15px rgba(255,215,0,1)); }
+  }
+  @keyframes collect {
+    0% { transform: scale(1) rotate(0); opacity: 1; }
+    100% { transform: scale(0) rotate(360deg) translateY(-100px); opacity: 0; }
+  }
+
+  /* Викторина */
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .quiz-option {
+    background: linear-gradient(135deg, rgba(45,90,168,0.8), rgba(26,58,110,0.8));
+    border: 2px solid #c0c0c0;
+    padding: 18px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-family: 'Neucha', cursive;
+    font-size: 1.15em;
+    color: #fff;
+    transition: all 0.3s;
+    text-align: center;
+  }
+  .quiz-option:hover {
+    background: linear-gradient(135deg, #c9a84c, #ffd700);
+    color: #0a1e3f;
+    transform: translateY(-3px);
+    border-color: #ffd700;
+  }
+  .quiz-option.correct {
+    background: linear-gradient(135deg, #2e7d32, #4caf50);
+    border-color: #81c784;
+    animation: pulse 0.5s;
+  }
+  .quiz-option.wrong {
+    background: linear-gradient(135deg, #c62828, #ef5350);
+    border-color: #ef5350;
+    animation: shake 0.5s;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  /* Снеговик - сбор снежков */
+  .snowball-game {
+    min-height: 350px;
+    position: relative;
+    background: linear-gradient(180deg, #1a3a6e 0%, #0a1e3f 100%);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 2px solid #c0c0c0;
+  }
+  .snowman {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 6em;
+    text-shadow: 0 0 20px rgba(255,255,255,0.8);
+  }
+  .falling-snowball {
+    position: absolute;
+    font-size: 2em;
+    cursor: pointer;
+    animation: fallBall linear forwards;
+    user-select: none;
+  }
+  @keyframes fallBall {
+    from { top: -50px; }
+    to { top: 110%; }
+  }
+
+  /* Финал */
+  .final-scene {
+    text-align: center;
+  }
+  .final-gifts {
+    font-size: 3em;
+    margin: 20px 0;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .progress-bar {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    height: 12px;
+    overflow: hidden;
+    margin: 15px 0;
+    border: 1px solid #c9a84c;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, #c9a84c, #ffd700);
+    height: 100%;
+    transition: width 0.5s ease;
+    box-shadow: 0 0 10px rgba(255,215,0,0.8);
+  }
+
+  .character-emoji {
+    font-size: 4em;
+    text-align: center;
+    margin: 10px 0;
+    filter: drop-shadow(0 0 15px rgba(255,215,0,0.5));
+  }
+
+  .feedback {
+    text-align: center;
+    font-size: 1.3em;
+    margin: 15px 0;
+    min-height: 30px;
+    color: #ffd700;
+    font-family: 'Ruslan Display', cursive;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8em; }
+    h2 { font-size: 1.4em; }
+    .dialogue-text { font-size: 1.05em; }
+    .quiz-options { grid-template-columns: 1fr; }
+    .hud { font-size: 0.9em; padding: 8px 14px; top: 35px; right: 10px; }
+    .btn { padding: 10px 22px; font-size: 1em; }
+  }
+</style>
+<style>
+  .back-to-main { position: fixed; left: 18px; top: 42px; z-index: 200; display: inline-block; padding: 9px 14px; border: 1px solid #c9a84c; border-radius: 22px; background: rgba(10,30,63,.92); color: #ffd700; text-decoration: none; font: 16px 'Neucha', cursive; box-shadow: 0 3px 12px rgba(0,0,0,.35); }
+  .back-to-main:hover { background: #c9a84c; color: #0a1e3f; }
+  @media (max-width: 600px) { .back-to-main { top: 38px; left: 8px; padding: 7px 10px; font-size: 13px; } }
+</style>
+
+</head>
+<body>
+<a class="back-to-main" href="./">← К первой игре</a>
+
+<div class="ornament top"></div>
+<div class="ornament bottom"></div>
+
+<div class="hud">🎁 Подарки: <span id="score">0</span></div>
+
+<div class="game-container">
+
+  <!-- СЦЕНА 1: Приветствие -->
+  <div class="scene active" id="scene-intro">
+    <h1>❄ Путешествие Деда Мороза ❄</h1>
+    <div class="character-emoji">🎅🦌</div>
+    <div class="dialogue-box">
+      <div class="speaker">Дед Мороз:</div>
+      <div class="dialogue-text">
+        Здорово, добрый молодец (или красна девица)! Я — Дед Мороз, хранитель зимних чудес и повелитель снежных вьюг. 
+        В этом году мне нужна помощь — подарки сами себя не разнесут, а Снегурочка уехала на курсы повышения квалификации 
+        по волшебству. Помоги мне собрать дары для ребят да пройти испытания лесные? Обещаю — будет весело, 
+        как на ярмарке в Коломне!
+      </div>
+    </div>
+    <div class="btn-center">
+      <button class="btn" onclick="goToScene('scene-forest')">🌨 В путь, в зимний лес!</button>
+    </div>
+  </div>
+
+  <!-- СЦЕНА 2: Сбор подарков в лесу -->
+  <div class="scene" id="scene-forest">
+    <h2>🌲 Зимний лес 🌲</h2>
+    <div class="dialogue-box">
+      <div class="speaker">Дед Мороз:</div>
+      <div class="dialogue-text">
+        Ох, и морозец сегодня! Щёки щиплет, нос краснеет — красота! Видишь, подарки по всему лесу разбросались? 
+        Собирай их поскорее, пока Леший не утащил в свою избушку. Он у меня вредный, но добрый в душе — 
+        как мой сосед по даче.
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="forest-progress" style="width:0%"></div></div>
+    <div class="forest-scene" id="forest-area">
+      <div class="tree" style="left:5%">🌲</div>
+      <div class="tree" style="left:20%; font-size:4em">🌲</div>
+      <div class="tree" style="right:15%">🌲</div>
+      <div class="tree" style="right:5%; font-size:6em">🌲</div>
+    </div>
+    <div class="feedback" id="forest-feedback">Собери 8 подарков!</div>
+    <div class="btn-center" id="forest-next" style="display:none">
+      <button class="btn" onclick="goToScene('scene-baba')">🧙 Дальше, к Бабе Яге!</button>
+    </div>
+  </div>
+
+  <!-- СЦЕНА 3: Баба Яга -->
+  <div class="scene" id="scene-baba">
+    <h2>🧙 Избушка Бабы Яги 🧙</h2>
+    <div class="character-emoji">🏚️🧙‍♀️</div>
+    <div class="dialogue-box">
+      <div class="speaker">Баба Яга:</div>
+      <div class="dialogue-text">
+        О-о-о, кто это пожаловал! Дедушка Мороз, старый знакомый! Пропустю тебя дальше, коли ответишь на мои загадки. 
+        Я хоть и вредная, но справедливая — как учительница математики в пятом классе.
+      </div>
+    </div>
+    <div class="dialogue-box">
+      <div class="speaker" id="quiz-question">Загадка 1:</div>
+      <div class="dialogue-text" id="quiz-text">Зимой и летом одним цветом?</div>
+      <div class="quiz-options" id="quiz-options"></div>
+    </div>
+    <div class="feedback" id="quiz-feedback"></div>
+  </div>
+
+  <!-- СЦЕНА 4: Снеговик -->
+  <div class="scene" id="scene-snowman">
+    <h2>⛄ Поляна Снеговика ⛄</h2>
+    <div class="dialogue-box">
+      <div class="speaker">Снеговик:</div>
+      <div class="dialogue-text">
+        Привет-привет! Я тут стою-стою, скучаю. Помоги мне собрать снежки — хочу слепить себе друзей, 
+        а то одному грустно. Лови снежки, что с неба падают!
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="snow-progress" style="width:0%"></div></div>
+    <div class="snowball-game" id="snow-area">
+      <div class="snowman">⛄</div>
+    </div>
+    <div class="feedback" id="snow-feedback">Поймай 10 снежков!</div>
+    <div class="btn-center" id="snow-next" style="display:none">
+      <button class="btn" onclick="goToScene('scene-final')">🎄 К финалу!</button>
+    </div>
+  </div>
+
+  <!-- СЦЕНА 5: Финал -->
+  <div class="scene" id="scene-final">
+    <h1>🎄 С Новым Годом! 🎄</h1>
+    <div class="final-scene">
+      <div class="character-emoji">🎅🦌🎄✨</div>
+      <div class="final-gifts">🎁🎁🎁🎁🎁</div>
+      <div class="dialogue-box">
+        <div class="speaker">Дед Мороз:</div>
+        <div class="dialogue-text">
+          Ну что ж, дружище! Справились мы с тобой на славу! <br><br>
+          🎁 Собрано подарков: <b id="final-score">0</b><br>
+          🧠 Загадок отгадано: <b id="final-quiz">0</b><br>
+          ⛄ Снежков поймано: <b id="final-snow">0</b><br><br>
+          Спасибо тебе за помощь! Теперь все дети получат свои подарки, 
+          а я пойду отдыхать — даже Деду Морозу нужен выходной. 
+          Заходи ещё в следующем году — у меня ещё много припасено чудес! 
+          <br><br>
+          <b style="color:#ffd700; font-size:1.2em">С Новым Годом! С новым счастьем! ❄️🥂</b>
+        </div>
+      </div>
+      <div class="btn-center">
+        <button class="btn" onclick="location.reload()">🔄 Сыграть ещё раз</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// === ОБЩИЕ ПЕРЕМЕННЫЕ ===
+let score = 0;
+let quizScore = 0;
+let snowScore = 0;
+let currentQuiz = 0;
+
+// === СНЕГ ===
+function createSnow() {
+  const snowflakes = ['❄', '❅', '❆', '✻', '✼'];
+  setInterval(() => {
+    const flake = document.createElement('div');
+    flake.className = 'snow';
+    flake.textContent = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+    flake.style.left = Math.random() * 100 + 'vw';
+    flake.style.animationDuration = (Math.random() * 5 + 5) + 's';
+    flake.style.fontSize = (Math.random() * 15 + 10) + 'px';
+    flake.style.opacity = Math.random() * 0.7 + 0.3;
+    document.body.appendChild(flake);
+    setTimeout(() => flake.remove(), 10000);
+  }, 200);
+}
+createSnow();
+
+// === ПЕРЕКЛЮЧЕНИЕ СЦЕН ===
+function goToScene(id) {
+  document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (id === 'scene-forest') initForest();
+  if (id === 'scene-baba') initQuiz();
+  if (id === 'scene-snowman') initSnowGame();
+  if (id === 'scene-final') showFinal();
+}
+
+function updateScore() {
+  document.getElementById('score').textContent = score;
+}
+
+// === СЦЕНА ЛЕСА: сбор подарков ===
+function initForest() {
+  const area = document.getElementById('forest-area');
+  // Удаляем старые подарки
+  area.querySelectorAll('.gift').forEach(g => g.remove());
+
+  const gifts = ['🎁', '🎀', '🧸', '🎄', '⭐', '🍬', '🍭', '🎊'];
+  let collected = 0;
+  const total = 8;
+
+  function spawnGift() {
+    if (collected >= total) return;
+    const gift = document.createElement('div');
+    gift.className = 'gift';
+    gift.textContent = gifts[Math.floor(Math.random() * gifts.length)];
+    gift.style.left = (Math.random() * 80 + 5) + '%';
+    gift.style.top = (Math.random() * 60 + 20) + '%';
+    gift.onclick = () => {
+      if (gift.classList.contains('collected')) return;
+      gift.classList.add('collected');
+      collected++;
+      score++;
+      updateScore();
+      document.getElementById('forest-progress').style.width = (collected / total * 100) + '%';
+      document.getElementById('forest-feedback').textContent = `Собрано: ${collected} из ${total}`;
+      setTimeout(() => gift.remove(), 600);
+      if (collected >= total) {
+        document.getElementById('forest-feedback').textContent = '✨ Отлично! Все подарки собраны!';
+        document.getElementById('forest-next').style.display = 'block';
+      } else {
+        setTimeout(spawnGift, 500);
+      }
+    };
+    area.appendChild(gift);
+  }
+
+  // Спавним первые 4, потом по мере сбора
+  for (let i = 0; i < 4; i++) setTimeout(spawnGift, i * 300);
+  const interval = setInterval(() => {
+    if (collected >= total) { clearInterval(interval); return; }
+    if (area.querySelectorAll('.gift:not(.collected)').length < 3) spawnGift();
+  }, 1500);
+}
+
+// === СЦЕНА ВИКТОРИНЫ ===
+const quizData = [
+  {
+    q: 'Зимой и летом одним цветом?',
+    options: ['🌲 Ёлка', '🌸 Ромашка', '🍎 Яблоня', '🌻 Подсолнух'],
+    correct: 0
+  },
+  {
+    q: 'Что кладёт Дед Мороз под ёлку?',
+    options: ['📚 Учебники', '🎁 Подарки', '🥦 Брокколи', '🧦 Носки для стирки'],
+    correct: 1
+  },
+  {
+    q: 'Кто внучка Деда Мороза?',
+    options: ['👸 Золушка', '🧜‍♀️ Русалочка', '❄️ Снегурочка', '🧙 Белоснежка'],
+    correct: 2
+  },
+  {
+    q: 'На чём ездит Дед Мороз?',
+    options: ['🚗 На машине', '🛷 На тройке лошадей', '🚲 На велосипеде', '🛴 На самокате'],
+    correct: 1
+  }
+];
+
+function initQuiz() {
+  currentQuiz = 0;
+  quizScore = 0;
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  if (currentQuiz >= quizData.length) {
+    document.getElementById('quiz-question').textContent = 'Баба Яга:';
+    document.getElementById('quiz-text').textContent = 
+      `Ну ты и умница! Все ${quizScore} из ${quizData.length} отгадал! Проходи, так и быть. С Новым Годом, старый хрыч! 🧙‍♀️`;
+    document.getElementById('quiz-options').innerHTML = '';
+    document.getElementById('quiz-feedback').textContent = '';
+    setTimeout(() => {
+      const nextBtn = document.createElement('div');
+      nextBtn.className = 'btn-center';
+      nextBtn.innerHTML = '<button class="btn" onclick="goToScene(\'scene-snowman\')">⛄ К Снеговику!</button>';
+      document.getElementById('scene-baba').appendChild(nextBtn);
+    }, 1500);
+    return;
+  }
+
+  const q = quizData[currentQuiz];
+  document.getElementById('quiz-question').textContent = `Загадка ${currentQuiz + 1}:`;
+  document.getElementById('quiz-text').textContent = q.q;
+  document.getElementById('quiz-feedback').textContent = '';
+
+  const optsDiv = document.getElementById('quiz-options');
+  optsDiv.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => handleQuizAnswer(i, btn);
+    optsDiv.appendChild(btn);
+  });
+}
+
+function handleQuizAnswer(idx, btn) {
+  const q = quizData[currentQuiz];
+  const allBtns = document.querySelectorAll('.quiz-option');
+  allBtns.forEach(b => b.style.pointerEvents = 'none');
+
+  if (idx === q.correct) {
+    btn.classList.add('correct');
+    quizScore++;
+    score += 2;
+    updateScore();
+    document.getElementById('quiz-feedback').textContent = '✅ Верно! Умница!';
+  } else {
+    btn.classList.add('wrong');
+    allBtns[q.correct].classList.add('correct');
+    document.getElementById('quiz-feedback').textContent = '❌ Мимо! Но не расстраивайся!';
+  }
+
+  currentQuiz++;
+  setTimeout(showQuizQuestion, 1500);
+}
+
+// === СЦЕНА СНЕГОВИКА ===
+function initSnowGame() {
+  const area = document.getElementById('snow-area');
+  area.querySelectorAll('.falling-snowball').forEach(s => s.remove());
+
+  let caught = 0;
+  const total = 10;
+
+  function spawnSnowball() {
+    if (caught >= total) return;
+    const ball = document.createElement('div');
+    ball.className = 'falling-snowball';
+    ball.textContent = '⚪';
+    ball.style.left = (Math.random() * 85 + 5) + '%';
+    ball.style.animationDuration = (Math.random() * 2 + 3) + 's';
+    ball.onclick = () => {
+      if (ball.classList.contains('caught')) return;
+      ball.classList.add('caught');
+      caught++;
+      snowScore++;
+      score++;
+      updateScore();
+      ball.style.transform = 'scale(1.5)';
+      ball.style.opacity = '0';
+      setTimeout(() => ball.remove(), 300);
+      document.getElementById('snow-progress').style.width = (caught / total * 100) + '%';
+      document.getElementById('snow-feedback').textContent = `Поймано: ${caught} из ${total}`;
+      if (caught >= total) {
+        document.getElementById('snow-feedback').textContent = '🎉 Снеговик счастлив!';
+        document.getElementById('snow-next').style.display = 'block';
+      }
+    };
+    area.appendChild(ball);
+    setTimeout(() => { if (ball.parentNode) ball.remove(); }, 5000);
+  }
+
+  const interval = setInterval(() => {
+    if (caught >= total) { clearInterval(interval); return; }
+    spawnSnowball();
+  }, 800);
+}
+
+// === ФИНАЛ ===
+function showFinal() {
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-quiz').textContent = quizScore;
+  document.getElementById('final-snow').textContent = snowScore;
+}
+</script>
+
+</body>
+</html>
