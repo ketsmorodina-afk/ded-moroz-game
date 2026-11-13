@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
+:root { font-family: 'Manrope', sans-serif; color: #f7fbff; background: #07172e; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, #1c4970 0%, #0b2442 42%, #061326 100%); }
+button { font: inherit; }
+.app-shell { position: relative; overflow: hidden; min-height: 100vh; padding: 24px clamp(18px, 5vw, 76px) 30px; }
+.snow { position: fixed; pointer-events: none; inset: 0; opacity: .35; background-image: radial-gradient(2px 2px at 40px 60px,#fff 99%,transparent),radial-gradient(2px 2px at 140px 180px,#fff 99%,transparent),radial-gradient(1px 1px at 240px 90px,#fff 99%,transparent); background-size: 280px 240px; animation: drift 18s linear infinite; }
+.snow-two { opacity: .18; background-position: 100px 120px; animation-duration: 28s; }
+@keyframes drift { to { transform: translateY(240px); } }
+.topbar { max-width: 1120px; margin: auto; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+.brand { color: #dff4ff; text-decoration: none; font-weight: 800; letter-spacing: .03em; }
+.sound-button { border: 1px solid #8eb8d866; background: #ffffff0d; color: #d9efff; border-radius: 30px; padding: 9px 15px; cursor: pointer; font-size: 12px; }
+.hero { text-align: center; max-width: 760px; margin: 62px auto 36px; position: relative; z-index: 1; }
+.eyebrow,.mini-label { color: #8ce4e1; font-size: 11px; letter-spacing: .24em; font-weight: 800; }
+h1 { font: 800 clamp(42px, 7vw, 76px)/.98 'Playfair Display', Georgia, serif; margin: 18px 0; letter-spacing: -.04em; text-shadow: 0 5px 35px #0006; }
+h1 span { color: #f6c977; }
+.subtitle { color: #c4d8e8; line-height: 1.7; max-width: 610px; margin: 0 auto; font-size: 15px; }
+.game-card { max-width: 1040px; margin: auto; background: #f6fbff; color: #16304a; border: 1px solid #ffffff80; border-radius: 24px; padding: 22px; box-shadow: 0 25px 90px #0005; position: relative; z-index: 1; }
+.game-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 2px 4px 18px; }
+.game-heading h2 { margin: 5px 0 0; font-size: 23px; letter-spacing: -.04em; }
+.mini-label { color: #4a9a9c; font-size: 9px; }
+.stats { display: flex; gap: 10px; }
+.stat { min-width: 76px; text-align: center; background: #e8f2f8; border-radius: 12px; padding: 8px 12px; }
+.stat span { display: block; color: #668198; font-size: 8px; letter-spacing: .12em; font-weight: 800; }
+.stat strong { display: block; font-size: 19px; margin-top: 2px; color: #173e5c; }
+.stat .urgent { color: #d34d4d; }
+.playfield { height: 420px; position: relative; overflow: hidden; border-radius: 17px; background: linear-gradient(#183d64 0%,#477da0 58%,#c2e0eb 59%,#e9f6fa 100%); }
+.moon { position: absolute; right: 13%; top: 8%; font-size: 42px; filter: drop-shadow(0 0 22px #fff8); }
+.mountain { position: absolute; bottom: 28%; width: 70%; height: 48%; background: #b8d9e6; clip-path: polygon(0 100%,35% 0,58% 72%,75% 30%,100% 100%); opacity: .65; }
+.mountain-back { left: -12%; }
+.mountain-front { right: -15%; transform: scale(1.2); background: #d9edf2; }
+.tree { position: absolute; bottom: 12%; font-size: 62px; filter: drop-shadow(0 8px 5px #16435c55); }
+.tree-a { left: 5%; }.tree-b { right: 5%; font-size: 80px; }.tree-c { right: 22%; bottom: 14%; font-size: 48px; }
+.cabin { position: absolute; bottom: 13%; left: 43%; font-size: 76px; filter: drop-shadow(0 8px 5px #16435c55); }
+.santa { position: absolute; bottom: 8%; left: 48%; font-size: 54px; z-index: 2; filter: drop-shadow(0 6px 5px #123); }
+.collectible { position: absolute; z-index: 3; transform: translate(-50%,-50%); border: 0; background: #ffffffc9; border-radius: 50%; width: 48px; height: 48px; font-size: 25px; cursor: pointer; box-shadow: 0 5px 14px #153b5b55; transition: transform .15s, opacity .2s; }
+.collectible:hover:not(:disabled) { transform: translate(-50%,-50%) scale(1.2) rotate(8deg); }
+.collectible.collected { opacity: .5; cursor: default; }
+.collectible:disabled { cursor: default; }
+.overlay { position: absolute; inset: 0; z-index: 5; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 25px; background: #0a2947c9; backdrop-filter: blur(5px); color: white; }
+.overlay-icon { font-size: 44px; }
+.overlay h3 { font-size: 25px; margin: 10px 0 7px; }
+.overlay p { max-width: 440px; color: #d4e7f4; line-height: 1.6; font-size: 13px; }
+.primary-button { margin-top: 12px; border: 0; border-radius: 30px; background: linear-gradient(110deg,#f6c66d,#ffe4a7); color: #253a4b; padding: 13px 22px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px #0003; }
+.primary-button span { margin-left: 10px; }
+.final-score { color: #fff; margin: 6px 0; }
+.game-footer { display: flex; justify-content: space-between; gap: 10px; color: #6c8598; font-size: 10px; padding: 14px 3px 0; }
+.how-to { max-width: 1040px; margin: 22px auto 0; display: flex; align-items: center; gap: 17px; padding: 18px 22px; border: 1px solid #a8d5e333; border-radius: 18px; background: #ffffff0b; position: relative; z-index: 1; }
+.how-icon { font-size: 32px; }.how-to h3 { margin: 0 0 4px; font-size: 14px; }.how-to p { margin: 0; color: #b7cddd; font-size: 12px; line-height: 1.6; }
+footer { text-align: center; color: #8eabc1; font-size: 10px; margin: 24px auto 0; position: relative; z-index: 1; } footer span { color: #f6c977; padding: 0 5px; }
+@media (max-width: 650px) { .app-shell { padding: 17px 12px 24px; }.hero { margin: 48px auto 26px; }.subtitle { font-size: 13px; }.game-card { padding: 12px; border-radius: 18px; }.game-heading { align-items: flex-start; flex-direction: column; }.stats { width: 100%; }.stat { flex: 1; min-width: 0; }.playfield { height: 430px; }.game-footer { flex-direction: column; }.collectible { width: 42px; height: 42px; font-size: 22px; }.tree-a { left: -1%; }.tree-b { right: -2%; }.cabin { left: 39%; }.santa { left: 46%; } }
